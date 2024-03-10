@@ -1,0 +1,24 @@
+{
+  "name": "cmmts.delivery",
+  "version": "1.0.0",
+  "description": "Desenvolvimento do Sistema de Gerenciamento de Entregas",
+  "main": "main.js",
+  "dependencies": {
+    "express": "^4.18.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/arthurvieira2003/cmmts.delivery.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arthurvieira2003/cmmts.delivery/issues"
+  },
+  "homepage": "https://github.com/arthurvieira2003/cmmts.delivery#readme"
+}

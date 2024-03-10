@@ -4,9 +4,15 @@
   "description": "Desenvolvimento do Sistema de Gerenciamento de Entregas",
   "main": "main.js",
   "dependencies": {
-    "express": "^4.18.3"
+    "backbone": "^1.6.0",
+    "express": "^4.18.3",
+    "jquery": "^3.7.1",
+    "underscore": "^1.13.6"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

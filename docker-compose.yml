@@ -1,0 +1,34 @@
+version: "3"
+services:
+  app:
+    build: .
+    networks:
+      - backend
+    links:
+      - db
+    command: ["sh", "start.sh"]
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/usr/app
+  db:
+    image: postgres
+    networks:
+      - backend
+    restart: always
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: cmmts-delivery
+      POSTGRES_USER: commits
+      POSTGRES_PASSWORD: mccts@24
+    volumes: 
+      - pgdata:/var/lib/postgresql/data
+volumes: 
+  pgdata:
+
+networks:
+  backend:
+    name: backend
+    driver: bridge
+    external: true

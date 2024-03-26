@@ -4,4 +4,4 @@ const UserController = {
   // Defina seus métodos de controlador aqui
 };
 
-module.exports = UserController;
+module.exports = UserController; // Exportar

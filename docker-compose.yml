@@ -11,6 +11,14 @@ services:
       - 3000:3000
     volumes:
       - .:/usr/app
+      - node_modules:/usr/app/node_modules
+    environment: # Adicione as variáveis de ambiente aqui
+      DB_NAME: cmmts-delivery
+      DB_USER: commits
+      DB_PASSWORD: mccts@24
+      DB_HOST: db # Use 'db' como o hostname
+      DB_DIALECT: postgres
+      DB_PORT: 5432
   db:
     image: postgres
     networks:
@@ -22,10 +30,11 @@ services:
       POSTGRES_DB: cmmts-delivery
       POSTGRES_USER: commits
       POSTGRES_PASSWORD: mccts@24
-    volumes: 
+    volumes:
       - pgdata:/var/lib/postgresql/data
-volumes: 
+volumes:
   pgdata:
+  node_modules:
 
 networks:
   backend:

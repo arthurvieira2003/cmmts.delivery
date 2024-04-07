@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require("sequelize");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 require("dotenv").config();
 
 const sequelize = new Sequelize(
@@ -15,7 +15,7 @@ const sequelize = new Sequelize(
 );
 
 const User = sequelize.define(
-  "User",
+  "user",
   {
     id: {
       type: Sequelize.INTEGER,

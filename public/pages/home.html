@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Leaflet Routing Machine Exemplo</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.css"
+    />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet-routing-machine/dist/leaflet-routing-machine.js"></script>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 100vh"></div>
+
+    <script>
+      var map = L.map("map").setView([-23.55052, -46.633308], 13); // Coordenadas de São Paulo, Brasil
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+      }).addTo(map);
+
+      // Rota 1
+      L.Routing.control({
+        waypoints: [
+          L.latLng(-23.55052, -46.633308), // Ponto de partida da rota 1
+          L.latLng(-23.548943, -46.638818), // Ponto de chegada da rota 1
+        ],
+        routeWhileDragging: true,
+        lineOptions: {
+          styles: [
+            { color: "black", opacity: 1, weight: 9 }, // Sombra da linha
+            { color: "red", opacity: 1, weight: 6 }, // Borda da linha
+            { color: "red", opacity: 1, weight: 2, dashArray: "10,12" }, // Linha tracejada
+          ],
+        },
+      }).addTo(map);
+
+      // Rota 2
+      L.Routing.control({
+        waypoints: [
+          L.latLng(-23.548943, -46.638818), // Ponto de partida da rota 2
+          L.latLng(-23.55052, -46.633308), // Ponto de chegada da rota 2
+        ],
+        routeWhileDragging: true,
+        lineOptions: {
+          styles: [
+            { color: "black", opacity: 1, weight: 9 }, // Sombra da linha
+            { color: "blue", opacity: 1, weight: 6 }, // Borda da linha
+            { color: "blue", opacity: 1, weight: 2, dashArray: "10,12" }, // Linha tracejada
+          ],
+        },
+      }).addTo(map);
+    </script>
+  </body>
+</html>

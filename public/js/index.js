@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const data = { username, password };
 
-    fetch("http://merdangrok/Usuarios/Login", {
+    fetch("https://glad-reliably-lion.ngrok-free.app/Usuarios/Login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

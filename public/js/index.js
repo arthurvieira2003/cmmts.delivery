@@ -3,12 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
   form.addEventListener("submit", function (event) {
     event.preventDefault();
 
-    const username = document.getElementById("username").value;
+    const nickname = document.getElementById("username").value;
     const password = document.getElementById("password").value;
 
-    const data = { username, password };
+    const data = { nickname, password };
 
-    fetch("https://glad-reliably-lion.ngrok-free.app/Usuarios/Login", {
+    fetch("http://localhost:5219/Usuarios/Login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

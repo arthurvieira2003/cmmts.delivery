@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const data = { nickname, password };
 
-    fetch("http://localhost:5219/Usuarios/Login", {
+    fetch("http://localhost:3000/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

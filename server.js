@@ -1,10 +1,10 @@
 const express = require("express");
-const userRoutes = require("./routes/userRoutes");
+const axios = require("axios");
+const cors = require("cors");
+const path = require("path");
+const bodyParser = require("body-parser");
 const app = express();
-const port = 3000;
-
 app.use(express.json());
-app.use("/users", userRoutes);
 
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);

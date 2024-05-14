@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     const data = { username, password };
 
-    fetch("https://glad-reliably-lion.ngrok-free.app/Usuarios/Login", {
+    fetch("/Usuarios/Login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

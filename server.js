@@ -9,3 +9,5 @@ app.use("/users", userRoutes);
 app.listen(port, () => {
   console.log(`Servidor rodando na porta ${port}`);
 });
+
+app.post("https://glad-reliably-lion.ngrok-free.app/")

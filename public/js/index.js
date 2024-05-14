@@ -4,9 +4,12 @@ document.addEventListener("DOMContentLoaded", function () {
     event.preventDefault();
 
     const nickname = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
+    const senha = document.getElementById("password").value;
 
-    const data = { nickname, password };
+    const data = { 
+      "nickname":nickname,
+      "senha":senha 
+    };
 
     fetch("/Usuarios/Login", {
       method: "POST",

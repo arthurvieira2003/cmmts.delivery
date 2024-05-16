@@ -18,13 +18,25 @@ document.addEventListener("DOMContentLoaded", function () {
       },
       body: JSON.stringify(data),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Erro na resposta do servidor');
+        }
+        return response.json();
+      })
       .then((data) => {
-        console.log("Sucesso:", data);
-        window.location.href = "./html/mapa.html";
+        console.log(data)
+        if (data.successo) {
+          console.log("Sucesso:", data);
+          window.location.href = "./html/mapa.html";
+        } else {
+          console.error("Erro de login:", data.message);
+          alert("Falha no login: " + data.message);
+        }
       })
       .catch((error) => {
         console.error("Erro:", error);
+        alert("Ocorreu um erro ao tentar fazer login. Tente novamente mais tarde.");
       });
   });
 });

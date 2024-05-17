@@ -1,27 +1,20 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Mapa Interativo com Rotas</title>
-    <style>
-      #map {
-        height: 100%;
-        width: 100%;
-      }
-      html,
-      body {
-        height: 100%;
-        margin: 0;
-        padding: 0;
-      }
-    </style>
+    <title>Roteirizador</title>
+    <link rel="stylesheet" href="../css/mapa.css" />
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7B88mSMfNjDPwonJJKwO4Vm2i3WvbaHo&libraries=places"></script>
   </head>
   <body>
     <div id="map"></div>
-    <script
-      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7B88mSMfNjDPwonJJKwO4Vm2i3WvbaHo&callback=initMap"
-      async
-      defer
-    ></script>
+    <div id="modal">
+      <label for="waypointName">Nome do Ponto:</label>
+      <input type="text" id="waypointName" />
+      <label for="waypointNumber">Número:</label>
+      <input type="number" id="waypointNumber" />
+      <button id="addWaypointBtn">Adicionar</button>
+      <button id="closeModalBtn">Cancelar</button>
+    </div>
     <script src="../js/mapa.js"></script>
   </body>
 </html>

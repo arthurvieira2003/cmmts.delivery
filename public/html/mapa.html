@@ -15,6 +15,30 @@
       <button id="addWaypointBtn">Adicionar</button>
       <button id="closeModalBtn">Cancelar</button>
     </div>
+    <div id="routeOptionsModal">
+      <label>
+        <input type="radio" name="routeOption" value="time" checked />
+        Menor Tempo de Deslocamento
+      </label>
+      <br />
+      <label>
+        <input type="radio" name="routeOption" value="distance" />
+        Menor Distância de Deslocamento
+      </label>
+      <br />
+      <label>
+        <input type="radio" name="routeOption" value="traffic" />
+        Considerar Trânsito
+      </label>
+      <br />
+      <button id="calculateRouteOptionsBtn">Calcular Rota</button>
+      <button id="closeRouteOptionsModalBtn">Cancelar</button>
+    </div>
+    <button id="calculateRouteButton">Calcular Rota</button>
+    <div id="timelinePanel">
+      <div id="timeline"></div>
+    </div>
+    <button id="toggleTimelineButton">&#9660;</button>
     <script src="../js/mapa.js"></script>
   </body>
 </html>

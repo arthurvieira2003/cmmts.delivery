@@ -2,12 +2,21 @@ let map;
 let waypoints = [];
 let markers = [];
 let currentLatLng;
+let directionsService;
+let directionsRenderer;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: -23.55052, lng: -46.633308 },
     zoom: 12,
   });
+
+  directionsService = new google.maps.DirectionsService();
+  directionsRenderer = new google.maps.DirectionsRenderer({
+    suppressMarkers: true,
+  });
+
+  directionsRenderer.setMap(map);
 
   map.addListener("rightclick", (event) => {
     currentLatLng = event.latLng;
@@ -68,30 +77,46 @@ function getRandomColor() {
 }
 
 async function calculateAndDisplayRoute() {
+  document.getElementById("routeOptionsModal").style.display = "block";
+}
+
+function closeRouteOptionsModal() {
+  document.getElementById("routeOptionsModal").style.display = "none";
+}
+
+function getSelectedRouteOption() {
+  const options = document.getElementsByName("routeOption");
+  for (const option of options) {
+    if (option.checked) {
+      return option.value;
+    }
+  }
+  return "time";
+}
+
+function generateRoute(option) {
   if (waypoints.length < 2) {
     alert("Adicione pelo menos dois waypoints para calcular a rota.");
     return;
   }
 
-  const directionsService = new google.maps.DirectionsService();
-  const directionsRenderer = new google.maps.DirectionsRenderer({
-    suppressMarkers: true,
-  });
-
-  directionsRenderer.setMap(map);
-
-  const waypts = waypoints.map((wp) => ({
-    location: wp.location,
-    stopover: true,
-  }));
-
-  const request = {
+  let travelMode = "DRIVING";
+  let request = {
     origin: waypoints[0].location,
     destination: waypoints[waypoints.length - 1].location,
-    waypoints: waypts.slice(1, -1),
+    waypoints: waypoints.slice(1, -1),
     optimizeWaypoints: true,
-    travelMode: "DRIVING",
+    travelMode: travelMode,
   };
+
+  if (option === "traffic") {
+    request.drivingOptions = {
+      departureTime: new Date(),
+      trafficModel: "pessimistic",
+    };
+  } else if (option === "distance") {
+    request.optimizeWaypoints = false;
+  }
 
   directionsService.route(request, (response, status) => {
     if (status === "OK") {
@@ -99,14 +124,14 @@ async function calculateAndDisplayRoute() {
       directionsRenderer.setOptions({
         polylineOptions: {
           strokeColor: routeColor,
-          strokeWeight: 6, // Increase the thickness of the route line
+          strokeWeight: 6,
         },
       });
       directionsRenderer.setDirections(response);
 
-      // Atualizar marcadores com a sequência da rota e cor aleatória
       const route = response.routes[0];
       const legs = route.legs;
+      updateTimeline(legs, routeColor);
 
       for (let i = 0; i < markers.length; i++) {
         markers[i].setLabel({
@@ -130,6 +155,19 @@ async function calculateAndDisplayRoute() {
   });
 }
 
+function updateTimeline(legs, color) {
+  const timeline = document.getElementById("timeline");
+  timeline.innerHTML = "";
+
+  legs.forEach((leg, index) => {
+    const div = document.createElement("div");
+    div.style.backgroundColor = color;
+    div.title = `Ponto ${index + 1}`;
+
+    timeline.appendChild(div);
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("addWaypointBtn")
@@ -138,13 +176,35 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("closeModalBtn")
     .addEventListener("click", closeModal);
 
-  const calculateRouteButton = document.createElement("button");
-  calculateRouteButton.textContent = "Calcular Rota";
-  calculateRouteButton.style.position = "absolute";
-  calculateRouteButton.style.top = "10px";
-  calculateRouteButton.style.left = "10px";
-  calculateRouteButton.onclick = calculateAndDisplayRoute;
-  document.body.appendChild(calculateRouteButton);
+  document
+    .getElementById("calculateRouteButton")
+    .addEventListener("click", calculateAndDisplayRoute);
+
+  document
+    .getElementById("calculateRouteOptionsBtn")
+    .addEventListener("click", () => {
+      const option = getSelectedRouteOption();
+      closeRouteOptionsModal();
+      generateRoute(option);
+    });
+
+  document
+    .getElementById("closeRouteOptionsModalBtn")
+    .addEventListener("click", closeRouteOptionsModal);
+
+  document
+    .getElementById("toggleTimelineButton")
+    .addEventListener("click", () => {
+      const timelinePanel = document.getElementById("timelinePanel");
+      const toggleButton = document.getElementById("toggleTimelineButton");
+      if (timelinePanel.style.display === "block") {
+        timelinePanel.style.display = "none";
+        toggleButton.innerHTML = "&#9660;";
+      } else {
+        timelinePanel.style.display = "block";
+        toggleButton.innerHTML = "&#9650;";
+      }
+    });
 
   initMap();
 });

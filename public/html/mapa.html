@@ -8,12 +8,17 @@
   <body>
     <div id="map"></div>
     <div id="modal">
-      <label for="waypointName">Nome do Ponto:</label>
-      <input type="text" id="waypointName" />
-      <label for="waypointNumber">Número:</label>
-      <input type="number" id="waypointNumber" />
-      <button id="addWaypointBtn">Adicionar</button>
+      <label for="itemName">Nome:</label>
+      <input type="text" id="itemName" />
+      <label for="itemNumber">Número:</label>
+      <input type="number" id="itemNumber" />
+      <button id="addItemBtn">Adicionar</button>
       <button id="closeModalBtn">Cancelar</button>
+    </div>
+    <div id="routePanel">
+      <div id="routeInfo"></div>
+      <h2>Waypoints</h2>
+      <ul id="waypointsList"></ul>
     </div>
     <div id="routeOptionsModal">
       <label>
@@ -39,6 +44,12 @@
       <div id="timeline"></div>
     </div>
     <button id="toggleTimelineButton">&#9660;</button>
+    <div id="contextMenu" style="display: none">
+      <button id="addWaypointOption">Adicionar Waypoint</button>
+      <button id="addDistributionCenterOption">
+        Adicionar Centro de Distribuição
+      </button>
+    </div>
     <script src="../js/mapa.js"></script>
   </body>
 </html>

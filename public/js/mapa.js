@@ -4,6 +4,8 @@ let markers = [];
 let currentLatLng;
 let directionsService;
 let directionsRenderer;
+let distributionCenter = null;
+let isAddingDistributionCenter = false;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
@@ -20,51 +22,150 @@ function initMap() {
 
   map.addListener("rightclick", (event) => {
     currentLatLng = event.latLng;
-    openModal();
+    openContextMenu(event.pixel);
+  });
+
+  window.addEventListener("contextmenu", (e) => {
+    e.preventDefault(); // Prevent default context menu
   });
 }
 
-function openModal() {
+function openContextMenu(position) {
+  const contextMenu = document.getElementById("contextMenu");
+  contextMenu.style.left = `${position.x}px`;
+  contextMenu.style.top = `${position.y}px`;
+  contextMenu.style.display = "block";
+
+  document.addEventListener("click", closeContextMenu);
+}
+
+function closeContextMenu() {
+  const contextMenu = document.getElementById("contextMenu");
+  contextMenu.style.display = "none";
+  document.removeEventListener("click", closeContextMenu);
+}
+
+function openModal(isDistributionCenter = false) {
+  isAddingDistributionCenter = isDistributionCenter;
   document.getElementById("modal").style.display = "block";
 }
 
 function closeModal() {
   document.getElementById("modal").style.display = "none";
-  document.getElementById("waypointName").value = "";
-  document.getElementById("waypointNumber").value = "";
+  document.getElementById("itemName").value = "";
+  document.getElementById("itemNumber").value = "";
 }
 
-function addWaypoint() {
-  const name = document.getElementById("waypointName").value;
-  const number = document.getElementById("waypointNumber").value;
+function addItem() {
+  const name = document.getElementById("itemName").value;
+  const number = document.getElementById("itemNumber").value;
 
   if (name && number) {
-    const marker = new google.maps.Marker({
-      position: currentLatLng,
-      map: map,
-      label: {
-        text: "E",
-        color: "white",
-        fontSize: "16px",
-        fontWeight: "bold",
-      },
-      title: name,
-      icon: {
-        path: google.maps.SymbolPath.CIRCLE,
-        scale: 12,
-        fillColor: "black",
-        fillOpacity: 1,
-        strokeWeight: 2,
-        strokeColor: "black",
-      },
-    });
-
-    markers.push(marker);
-    waypoints.push({ location: currentLatLng, stopover: true });
+    if (isAddingDistributionCenter) {
+      addDistributionCenter(name, number);
+    } else {
+      addWaypoint(name, number);
+    }
     closeModal();
   } else {
     alert("Por favor, preencha todos os campos.");
   }
+}
+
+function addDistributionCenter(name, number) {
+  if (distributionCenter) {
+    distributionCenter.setMap(null);
+  }
+
+  distributionCenter = new google.maps.Marker({
+    position: currentLatLng,
+    map: map,
+    label: {
+      text: "CD",
+      color: "white",
+      fontSize: "16px",
+      fontWeight: "bold",
+    },
+    title: name,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 12,
+      fillColor: "blue",
+      fillOpacity: 1,
+      strokeWeight: 2,
+      strokeColor: "blue",
+    },
+  });
+}
+
+function removeWaypoint(index) {
+  waypoints.splice(index, 1);
+  markers[index].setMap(null);
+  markers.splice(index, 1);
+  document.getElementById("waypointsList").children[index].remove();
+  // Recalcular a rota se necessário
+}
+
+function addWaypoint(name, number) {
+  const marker = new google.maps.Marker({
+    position: currentLatLng,
+    map: map,
+    label: {
+      text: "E",
+      color: "white",
+      fontSize: "16px",
+      fontWeight: "bold",
+    },
+    title: name,
+    icon: {
+      path: google.maps.SymbolPath.CIRCLE,
+      scale: 12,
+      fillColor: "black",
+      fillOpacity: 1,
+      strokeWeight: 2,
+      strokeColor: "black",
+    },
+  });
+
+  markers.push(marker);
+  waypoints.push({ location: currentLatLng, stopover: true });
+
+  const waypointIndex = waypoints.length - 1;
+  const waypointElement = document.createElement("li");
+  waypointElement.textContent = name;
+  const removeButton = document.createElement("button");
+  removeButton.textContent = "Remover";
+  removeButton.addEventListener("click", () => {
+    removeWaypoint(waypointIndex);
+  });
+  waypointElement.appendChild(removeButton);
+  document.getElementById("waypointsList").appendChild(waypointElement);
+}
+
+function updateRoutePanel(route, waypoints) {
+  const routeInfo = document.getElementById("routeInfo");
+  const waypointsList = document.getElementById("waypointsList");
+
+  // Limpa o painel de informações da rota e waypoints
+  routeInfo.innerHTML = "";
+  waypointsList.innerHTML = "";
+
+  // Mostra informações da rota
+  const summary = route.summary;
+  const duration = route.legs.reduce((acc, leg) => acc + leg.duration.value, 0);
+  const distance = route.legs.reduce((acc, leg) => acc + leg.distance.value, 0);
+  routeInfo.innerHTML += `<p><strong>Resumo da Rota:</strong></p>`;
+  routeInfo.innerHTML += `<p>Duração: ${duration} segundos</p>`;
+  routeInfo.innerHTML += `<p>Distância: ${distance} metros</p>`;
+
+  // Mostra informações dos waypoints
+  waypoints.forEach((waypoint, index) => {
+    const waypointElement = document.createElement("li");
+    waypointElement.textContent = `Waypoint ${
+      index + 1
+    }: Lat: ${waypoint.location.lat()}, Lng: ${waypoint.location.lng()}`;
+    waypointsList.appendChild(waypointElement);
+  });
 }
 
 function getRandomColor() {
@@ -95,17 +196,21 @@ function getSelectedRouteOption() {
 }
 
 function generateRoute(option) {
-  if (waypoints.length < 2) {
-    alert("Adicione pelo menos dois waypoints para calcular a rota.");
+  if (!distributionCenter) {
+    alert("Por favor, defina um centro de distribuição.");
+    return;
+  }
+  if (waypoints.length < 1) {
+    alert("Adicione pelo menos um waypoint para calcular a rota.");
     return;
   }
 
   let travelMode = "DRIVING";
   let request = {
-    origin: waypoints[0].location,
-    destination: waypoints[waypoints.length - 1].location,
-    waypoints: waypoints.slice(1, -1),
-    optimizeWaypoints: true,
+    origin: distributionCenter.getPosition(),
+    destination: distributionCenter.getPosition(),
+    waypoints: waypoints,
+    optimizeWaypoints: option !== "distance",
     travelMode: travelMode,
   };
 
@@ -114,12 +219,12 @@ function generateRoute(option) {
       departureTime: new Date(),
       trafficModel: "pessimistic",
     };
-  } else if (option === "distance") {
-    request.optimizeWaypoints = false;
   }
 
   directionsService.route(request, (response, status) => {
     if (status === "OK") {
+      console.log(response);
+      updateRoutePanel(response.routes[0], waypoints);
       const routeColor = getRandomColor();
       directionsRenderer.setOptions({
         polylineOptions: {
@@ -169,9 +274,7 @@ function updateTimeline(legs, color) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  document
-    .getElementById("addWaypointBtn")
-    .addEventListener("click", addWaypoint);
+  document.getElementById("addItemBtn").addEventListener("click", addItem);
   document
     .getElementById("closeModalBtn")
     .addEventListener("click", closeModal);
@@ -204,6 +307,18 @@ document.addEventListener("DOMContentLoaded", () => {
         timelinePanel.style.display = "block";
         toggleButton.innerHTML = "&#9650;";
       }
+    });
+
+  document.getElementById("addWaypointOption").addEventListener("click", () => {
+    closeContextMenu();
+    openModal(false);
+  });
+
+  document
+    .getElementById("addDistributionCenterOption")
+    .addEventListener("click", () => {
+      closeContextMenu();
+      openModal(true);
     });
 
   initMap();

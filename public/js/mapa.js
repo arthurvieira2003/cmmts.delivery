@@ -13,6 +13,81 @@ function initMap() {
     zoom: 12,
   });
 
+  fetch("/Roteirizador/BuscarCentrosDistribuicao")
+      .then(response => response.json())
+      .then(data => {
+        const centros = data;
+        for (let centro of centros) {
+          new google.maps.Marker({
+            position: { lat: centro.Latitude, lng: centro.Longitude },
+            map: map,
+            label: {
+              text: "CD",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: "bold",
+            },
+            title: centro.Nome,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 12,
+              fillColor: "blue",
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "blue",
+            },
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
+  // Busque os waypoints aqui
+  fetch("/Roteirizador/BuscarWayPoints")
+      .then(response => response.json())
+      .then(data => {
+        const waypoints = data;
+        for (let waypoint of waypoints) {
+          new google.maps.Marker({
+            position: { lat: waypoint.Latitude, lng: waypoint.Longitude },
+            map: map,
+            label: {
+              text: "E",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: "bold",
+            },
+            title: waypoint.Nome,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 12,
+              fillColor: "black",
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "black",
+            },
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
+  // Busque as rotas aqui
+  fetch("http://localhost:5219/Roteirizador/BuscarRotas")
+      .then(response => response.json())
+      .then(data => {
+        const rotas = data;
+        for (let rota of rotas) {
+          // Aqui você precisa adicionar o código para desenhar a rota no mapa
+          // usando os dados da rota
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
+
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({
     suppressMarkers: true,
@@ -96,6 +171,26 @@ function addDistributionCenter(name, number) {
       strokeColor: "blue",
     },
   });
+
+  fetch("/Roteirizador/AdicionarCentro", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      Nome: name,
+      Numero: number,
+      Latitude: currentLatLng.lat,
+      Longitude: currentLatLng.lng
+    }),
+  })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
 }
 
 function removeWaypoint(index) {
@@ -140,6 +235,27 @@ function addWaypoint(name, number) {
   });
   waypointElement.appendChild(removeButton);
   document.getElementById("waypointsList").appendChild(waypointElement);
+
+  // Adicione a chamada para o backend aqui
+  fetch("/Roteirizador/AdicionarWaypoint", {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      Nome: name,
+      Numero: number,
+      Latitude: currentLatLng.lat,
+      Longitude: currentLatLng.lng
+    }),
+  })
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
 }
 
 function updateRoutePanel(route, waypoints) {
@@ -254,6 +370,25 @@ function generateRoute(option) {
           strokeColor: routeColor,
         });
       }
+
+      fetch("/Roteirizador/AdicionarRota", {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          CodigoCentroDistribuicao: distributionCenter.Codigo,
+          WaypointsJson: JSON.stringify(waypoints),
+          TipoRota: option
+        }),
+      })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data);
+          })
+          .catch((error) => {
+            console.error('Error:', error);
+          });
     } else {
       window.alert("Directions request failed due to " + status);
     }

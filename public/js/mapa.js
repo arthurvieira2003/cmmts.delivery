@@ -6,10 +6,11 @@ let directionsService;
 let directionsRenderer;
 let distributionCenter = null;
 let isAddingDistributionCenter = false;
+let dadosCd;
 
 function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
-    center: { lat: -23.55052, lng: -46.633308 },
+    center: { lat: -26.263376014191284, lng: -48.89011018083488 },
     zoom: 12,
   });
 
@@ -38,6 +39,7 @@ function initMap() {
             },
           });
         }
+        dadosCd = data
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -145,6 +147,37 @@ function addItem() {
   } else {
     alert("Por favor, preencha todos os campos.");
   }
+}
+function buscarCaminhos () {
+  return fetch("/Roteirizador/BuscarWayPoints")
+      .then(response => response.json())
+      .then(data => {
+        const waypoints = data;
+        for (let waypoint of waypoints) {
+          new google.maps.Marker({
+            position: { lat: waypoint.latitude, lng: waypoint.longitude },
+            map: map,
+            label: {
+              text: "E",
+              color: "white",
+              fontSize: "16px",
+              fontWeight: "bold",
+            },
+            title: waypoint.nome,
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: 12,
+              fillColor: "black",
+              fillOpacity: 1,
+              strokeWeight: 2,
+              strokeColor: "black",
+            },
+          });
+        }
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+      });
 }
 
 function addDistributionCenter(name, number) {
@@ -318,12 +351,12 @@ function getSelectedRouteOption() {
   return "time";
 }
 
-function generateRoute(option) {
-  if (!distributionCenter) {
+function generateRoute(option, dadosCentro, caminhos) {
+  if (!dadosCentro) {
     alert("Por favor, defina um centro de distribuição.");
     return;
   }
-  if (waypoints.length < 1) {
+  if (!caminhos) {
     alert("Adicione pelo menos um waypoint para calcular a rota.");
     return;
   }
@@ -384,7 +417,7 @@ function generateRoute(option) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          CodigoCentroDistribuicao: distributionCenter.Codigo,
+          CodigoCentroDistribuicao: dadosCd[0].codigo,
           WaypointsJson: JSON.stringify(waypoints),
           TipoRota: option
         }),
@@ -392,6 +425,7 @@ function generateRoute(option) {
           .then(response => response.json())
           .then(data => {
             console.log(data);
+            console.log(distributionCenter)
           })
           .catch((error) => {
             console.error('Error:', error);
@@ -400,6 +434,17 @@ function generateRoute(option) {
       window.alert("Directions request failed due to " + status);
     }
   });
+}
+
+function getCentros() {
+    return fetch("/Roteirizador/BuscarCentrosDistribuicao")
+        .then(response => response.json())
+        .then(data => {
+            return data;
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
 }
 
 function updateTimeline(legs, color) {
@@ -429,8 +474,10 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("calculateRouteOptionsBtn")
     .addEventListener("click", () => {
       const option = getSelectedRouteOption();
+      const centros = getCentros();
+      const caminhos = buscarCaminhos();
       closeRouteOptionsModal();
-      generateRoute(option);
+      generateRoute(option, centros, caminhos);
     });
 
   document

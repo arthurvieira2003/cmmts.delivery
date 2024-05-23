@@ -75,7 +75,7 @@ function initMap() {
       });
 
   // Busque as rotas aqui
-  fetch("http://localhost:5219/Roteirizador/BuscarRotas")
+  fetch("/Roteirizador/BuscarRotas")
       .then(response => response.json())
       .then(data => {
         const rotas = data;
@@ -172,6 +172,10 @@ function addDistributionCenter(name, number) {
     },
   });
 
+  var latitude = currentLatLng.lat();
+  var longitude = currentLatLng.lng();
+
+
   fetch("/Roteirizador/AdicionarCentro", {
     method: 'POST',
     headers: {
@@ -180,8 +184,8 @@ function addDistributionCenter(name, number) {
     body: JSON.stringify({
       Nome: name,
       Numero: number,
-      Latitude: currentLatLng.lat,
-      Longitude: currentLatLng.lng
+      Latitude: latitude,
+      Longitude: longitude
     }),
   })
       .then(response => response.json())

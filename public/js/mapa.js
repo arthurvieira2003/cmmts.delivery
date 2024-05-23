@@ -19,7 +19,7 @@ function initMap() {
         const centros = data;
         for (let centro of centros) {
           new google.maps.Marker({
-            position: { lat: centro.Latitude, lng: centro.Longitude },
+            position: { lat: centro.latitude, lng: centro.longitude },
             map: map,
             label: {
               text: "CD",
@@ -27,7 +27,7 @@ function initMap() {
               fontSize: "16px",
               fontWeight: "bold",
             },
-            title: centro.Nome,
+            title: centro.nome,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               scale: 12,
@@ -50,7 +50,7 @@ function initMap() {
         const waypoints = data;
         for (let waypoint of waypoints) {
           new google.maps.Marker({
-            position: { lat: waypoint.Latitude, lng: waypoint.Longitude },
+            position: { lat: waypoint.latitude, lng: waypoint.longitude },
             map: map,
             label: {
               text: "E",
@@ -58,7 +58,7 @@ function initMap() {
               fontSize: "16px",
               fontWeight: "bold",
             },
-            title: waypoint.Nome,
+            title: waypoint.nome,
             icon: {
               path: google.maps.SymbolPath.CIRCLE,
               scale: 12,
@@ -74,19 +74,19 @@ function initMap() {
         console.error('Error:', error);
       });
 
-  // Busque as rotas aqui
-  fetch("/Roteirizador/BuscarRotas")
-      .then(response => response.json())
-      .then(data => {
-        const rotas = data;
-        for (let rota of rotas) {
-          // Aqui você precisa adicionar o código para desenhar a rota no mapa
-          // usando os dados da rota
-        }
-      })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+  // // Busque as rotas aqui
+  // fetch("/Roteirizador/BuscarRotas")
+  //     .then(response => response.json())
+  //     .then(data => {
+  //       const rotas = data;
+  //       for (let rota of rotas) {
+  //         // Aqui você precisa adicionar o código para desenhar a rota no mapa
+  //         // usando os dados da rota
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.error('Error:', error);
+  //     });
 
   directionsService = new google.maps.DirectionsService();
   directionsRenderer = new google.maps.DirectionsRenderer({
@@ -240,6 +240,9 @@ function addWaypoint(name, number) {
   waypointElement.appendChild(removeButton);
   document.getElementById("waypointsList").appendChild(waypointElement);
 
+  var latitude = currentLatLng.lat();
+  var longitude = currentLatLng.lng();
+
   // Adicione a chamada para o backend aqui
   fetch("/Roteirizador/AdicionarWaypoint", {
     method: 'POST',
@@ -249,8 +252,8 @@ function addWaypoint(name, number) {
     body: JSON.stringify({
       Nome: name,
       Numero: number,
-      Latitude: currentLatLng.lat,
-      Longitude: currentLatLng.lng
+      Latitude: latitude,
+      Longitude: longitude
     }),
   })
       .then(response => response.json())

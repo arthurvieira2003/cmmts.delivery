@@ -5,7 +5,7 @@ Como iniciar a aplicação (FrontEnd)
 
 1. Clonar o repositório na sua máquina local.
 
-  ```git clone https://github.com/usuario/nome-do-repositorio.git```
+  ```git clone https://github.com/arthurvieira2003/cmmts.delivery```
 
 2. Instalar as dependências do projeto, no terminal do IDE.
 

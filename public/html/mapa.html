@@ -1,56 +1,27 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <title>Roteirizador</title>
-    <link rel="stylesheet" href="../css/mapa.css" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=API_KEY_AQUI&libraries=places"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=API_KEY_AQUI&libraries=geometry"></script>
-  </head>
-  <body>
-    <div id="map"></div>
-    <div id="modal">
-      <label for="itemName">Nome:</label>
-      <input type="text" id="itemName" />
-      <label for="itemNumber">Número:</label>
-      <input type="number" id="itemNumber" />
-      <button id="addItemBtn">Adicionar</button>
-      <button id="closeModalBtn">Cancelar</button>
-    </div>
-    <div id="routePanel">
-      <div id="routeInfo"></div>
-      <h2>Waypoints</h2>
-      <ul id="waypointsList"></ul>
-    </div>
-    <div id="routeOptionsModal">
-      <label>
-        <input type="radio" name="routeOption" value="time" checked />
-        Menor Tempo de Deslocamento
-      </label>
-      <br />
-      <label>
-        <input type="radio" name="routeOption" value="distance" />
-        Menor Distância de Deslocamento
-      </label>
-      <br />
-      <label>
-        <input type="radio" name="routeOption" value="traffic" />
-        Considerar Trânsito
-      </label>
-      <br />
-      <button id="calculateRouteOptionsBtn">Calcular Rota</button>
-      <button id="closeRouteOptionsModalBtn">Cancelar</button>
-    </div>
-    <button id="calculateRouteButton">Calcular Rota</button>
-    <div id="timelinePanel">
-      <div id="timeline"></div>
-    </div>
-    <button id="toggleTimelineButton">&#9660;</button>
-    <div id="contextMenu" style="display: none">
-      <button id="addWaypointOption">Adicionar Waypoint</button>
-      <button id="addDistributionCenterOption">
-        Adicionar Centro de Distribuição
-      </button>
-    </div>
-    <script src="../js/mapa.js"></script>
-  </body>
+    <link rel="stylesheet" href="../css/mapa.css"/>
+    <!-- Loading Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB7B88mSMfNjDPwonJJKwO4Vm2i3WvbaHo&libraries=places,geometry"></script>
+</head>
+<body>
+<div id="map"></div>
+<div id="modal">
+    <label for="itemName">Nome:</label>
+    <input type="text" id="itemName"/>
+    <label for="itemNumber">Número:</label>
+    <input type="number" id="itemNumber"/>
+    <button id="addItemBtn">Adicionar</button>
+    <button id="closeModalBtn">Cancelar</button>
+</div>
+<button id="calculateRouteButton">Calcular Rota</button>
+<div id="contextMenu" style="display: none">
+    <button id="addWaypointOption">Adicionar Waypoint</button>
+    <button id="addDistributionCenterOption">Adicionar Centro de Distribuição</button>
+</div>
+<input id="pac-input" class="controls" type="text" placeholder="Pesquisar endereço">
+<script src="../js/mapa.js"></script>
+</body>
 </html>

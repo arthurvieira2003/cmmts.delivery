@@ -39,7 +39,7 @@ function initMap() {
         var bounds = new google.maps.LatLngBounds();
         places.forEach(function(place) {
             if (!place.geometry) {
-                console.log("Local sem coordenadas.");
+                console.log("Local sem coordenadas.")
                 return;
             }
             var marker = new google.maps.Marker({
@@ -153,20 +153,8 @@ function initMap() {
                                 stopover: true,
                                 customData: waypoint.codigo
                             });
-
-                            const waypointIndex = waypoints.length - 1;
-                            const waypointElement = document.createElement("li");
-                            waypointElement.textContent = waypoint.nome;
-                            const removeButton = document.createElement("button");
-                            removeButton.textContent = "Remover";
-                            removeButton.addEventListener("click", () => {
-                                removeWaypoint(waypointIndex);
-                            });
-                            waypointElement.appendChild(removeButton);
-                            document.getElementById("waypointsList").appendChild(waypointElement);
-
                         } else {
-                            console.error("Erro ao obter coordenadas do Place ID:", status);
+                            console.error("Erro ao obter coordenadas do Place ID:", status)
                         }
                     });
                 }
@@ -224,7 +212,6 @@ function fetchWaypointsForRoute(codigoRota) {
     return fetch("/Roteirizador/BuscarWayPoints")
         .then(response => response.json())
         .then(data => {
-            console.log(codigoRota)
             return data.filter(waypoint => waypoint.codigoRota === codigoRota);
         });
 }
@@ -442,8 +429,6 @@ function addWaypoint(name, number) {
             })
                 .then(response => response.json())
                 .then(data => {
-                    console.log(data.codigo);
-
                     const infowindow = new google.maps.InfoWindow({
                         content: `<div><strong>${name}</strong><br><p>${address}</p></div>`
                     });

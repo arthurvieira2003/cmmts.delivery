@@ -114,6 +114,7 @@ function initMap() {
     fetch("/Roteirizador/BuscarWayPoints")
         .then(response => response.json())
         .then(data => {
+            console.log(data)
             for (let waypoint of data) {
                 if (!waypoint.codigoRota) {
                     const geocoder = new google.maps.Geocoder();

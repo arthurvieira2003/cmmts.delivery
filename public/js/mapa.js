@@ -15,54 +15,53 @@ function initMap() {
         zoom: 12,
     });
 
-    // let decodedPath = google.maps.geometry.encoding.decodePath('d{h_Df{kiHU}BtBL~CRb@Hf@Rz@n@~@h@t@j@t@n@PF\BN?b@FhBE`@Bx@?xCLfBFrC?`AFlACCyC?iB?hBBxCx@IdBCv@@b@Fn@H\VPZdAMlAQrCeAhBw@t@OtFIpBHjCAnADr@DR?BoAH_EJm@P_AQ~@Kl@I~DCnAS?s@EoAEkC@qBIuBB_CD_@FUFc@TeA`@sCdAmAPDaDCmCCiEMgQEkFC_FAcAAgBn@BvEP`IXfA@gAAaIY}GUs@@gA?Am@D_BHsADoDIsHMmIEeG?wBnBCP?CeCAyFGeH@C?C?GAy@@aEHkDDuAzHZtBHxFV@aCCoAAa@@`@BnAA`CoJa@{H[EtAIjDA`EUt@CD?BoC@Q?AmBAmBgCmCwBgBg@WaFmBsCeAgCaA_A_@DvCNhFFpA@pA@`EQt@?JL@XGJ?@f@@tGJvHBzBB|BFrHJdGkDHFvEJvD@tBB|DFdHHfJoI?}DJm@@kFLB`AFtAb@lDlA~K');
-    //
-    // let polyline = new google.maps.Polyline({
-    //     path: decodedPath,
-    //     strokeColor: '#FF0000',
-    //     strokeOpacity: 1.0,
-    //     strokeWeight: 2
-    // });
-    // polyline.setMap(map);
+    var input = document.getElementById('pac-input');
+    var searchBox = new google.maps.places.SearchBox(input);
+    map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-    // let request = {
-    //     origin: {'placeId': "ChIJW4eHE4mv3pQR8NFd70WuTbY"},
-    //     destination: {'placeId': "ChIJW4eHE4mv3pQR8NFd70WuTbY"},
-    //     waypoints: [
-    //         {
-    //             location: {'placeId': "ChIJi1vqPuGv3pQRCZrft85XVLI"},
-    //             stopover: true
-    //         },
-    //         {
-    //             location: {'placeId': "ChIJj4Iuel6l3pQRfbTuzjWvBWA"},
-    //             stopover: true
-    //         },
-    //     ],
-    //     travelMode: 'DRIVING'
-    // };
-    //
-    // directionsService.route(request, function (response, status) {
-    //     if (status === 'OK') {
-    //         // Se a solicitação foi bem-sucedida, crie um objeto DirectionsRenderer para exibir as direções
-    //         var directionsRenderer = new google.maps.DirectionsRenderer({
-    //             map: map,
-    //             directions: response,
-    //             polylineOptions: {
-    //                 strokeColor: '#FF0000',
-    //                 strokeOpacity: 1.0,
-    //                 strokeWeight: 2
-    //             }
-    //         });
-    //     } else {
-    //         console.error('Directions request failed due to ' + status);
-    //     }
-    // });
+    map.addListener('bounds_changed', function() {
+        searchBox.setBounds(map.getBounds());
+    });
+
+    var markers = [];
+    searchBox.addListener('places_changed', function() {
+        var places = searchBox.getPlaces();
+
+        if (places.length == 0) {
+            return;
+        }
+
+        markers.forEach(function(marker) {
+            marker.setMap(null);
+        });
+        markers = [];
+
+        var bounds = new google.maps.LatLngBounds();
+        places.forEach(function(place) {
+            if (!place.geometry) {
+                console.log("Local sem coordenadas.");
+                return;
+            }
+            var marker = new google.maps.Marker({
+                map: map,
+                title: place.name,
+                position: place.geometry.location
+            });
+            markers.push(marker);
+
+            if (place.geometry.viewport) {
+                bounds.union(place.geometry.viewport);
+            } else {
+                bounds.extend(place.geometry.location);
+            }
+        });
+        map.fitBounds(bounds);
+    });
 
     fetch("/Roteirizador/BuscarCentrosDistribuicao")
         .then(response => response.json())
         .then(data => {
-            const centros = data;
-            for (let centro of centros) {
+            for (let centro of data) {
                 const geocoder = new google.maps.Geocoder();
 
                 geocoder.geocode({placeId: centro.placeIdCentro}, (results, status) => {
@@ -112,7 +111,6 @@ function initMap() {
             console.error('Error:', error);
         });
 
-    // Busque os waypoints aqui
     fetch("/Roteirizador/BuscarWayPoints")
         .then(response => response.json())
         .then(data => {
@@ -150,7 +148,6 @@ function initMap() {
                             });
 
                             markers.push(marker);
-                            // Ensuring location has lat/lng properties
                             waypoints.push({
                                 location: {lat: location.lat(), lng: location.lng()},
                                 stopover: true,
@@ -179,13 +176,10 @@ function initMap() {
             console.error('Error:', error);
         });
 
-    // Busque as rotas aqui
     fetch("/Roteirizador/BuscarRotas")
         .then(response => response.json())
         .then(data => {
-            const rotas = data;
-            for (let rota of rotas) {
-                // Buscar os waypoints da rota
+            for (let rota of data) {
                 fetchWaypointsForRoute(rota.codigo)
                     .then(waypoints => {
                         renderRoute(rota, waypoints);
@@ -222,7 +216,7 @@ function initMap() {
 
 
     window.addEventListener("contextmenu", (e) => {
-        e.preventDefault(); // Prevent default context menu
+        e.preventDefault();
     });
 }
 
@@ -355,40 +349,6 @@ function addItem() {
     }
 }
 
-function buscarCaminhos() {
-    return fetch("/Roteirizador/BuscarWayPoints")
-        .then(response => response.json())
-        .then(data => {
-            const waypoints = data;
-            const geocoder = new google.maps.Geocoder();
-
-            for (let waypoint of waypoints) {
-
-                geocoder.geocode({placeId: waypoint.placeId}, (results, status) => {
-
-                    if (status === "OK" && results[0]) {
-                        const location = results[0].geometry.location;
-
-                        new google.maps.Marker({
-                            position: location,
-                            map: map,
-                            label: {
-                                text: "E",
-                                color: "white",
-                                fontSize: "16px",
-                                fontWeight: "bold",
-                            },
-                            title: waypoint.nome,
-                        });
-                    }
-                })
-            }
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-}
-
 function addDistributionCenter(name, number) {
     const geocoder = new google.maps.Geocoder();
 
@@ -458,19 +418,16 @@ function removeWaypoint(index) {
     markers[index].setMap(null);
     markers.splice(index, 1);
     document.getElementById("waypointsList").children[index].remove();
-    // Recalcular a rota se necessário
 }
 
 function addWaypoint(name, number) {
     const geocoder = new google.maps.Geocoder();
 
-    // Use o geocoder para obter as coordenadas geográficas do placeId
     geocoder.geocode({placeId: placeId}, (results, status) => {
         if (status === "OK" && results[0]) {
             const location = results[0].geometry.location;
             const address = results[0].formatted_address;
 
-            // Adicione a chamada para o backend aqui
             fetch("/Roteirizador/AdicionarWaypoint", {
                 method: 'POST',
                 headers: {
@@ -491,7 +448,6 @@ function addWaypoint(name, number) {
                         content: `<div><strong>${name}</strong><br><p>${address}</p></div>`
                     });
 
-                    // Crie um marcador com as coordenadas obtidas
                     const marker = new google.maps.Marker({
                         position: location,
                         map: map,
@@ -542,32 +498,6 @@ function addWaypoint(name, number) {
     });
 }
 
-function updateRoutePanel(route, waypoints) {
-    const routeInfo = document.getElementById("routeInfo");
-    const waypointsList = document.getElementById("waypointsList");
-
-    // Limpa o painel de informações da rota e waypoints
-    routeInfo.innerHTML = "";
-    waypointsList.innerHTML = "";
-
-    // Mostra informações da rota
-    const summary = route.summary;
-    const duration = route.legs.reduce((acc, leg) => acc + leg.duration.value, 0);
-    const distance = route.legs.reduce((acc, leg) => acc + leg.distance.value, 0);
-    routeInfo.innerHTML += `<p><strong>Resumo da Rota:</strong></p>`;
-    routeInfo.innerHTML += `<p>Duração: ${duration} segundos</p>`;
-    routeInfo.innerHTML += `<p>Distância: ${distance} metros</p>`;
-
-    // Mostra informações dos waypoints
-    waypoints.forEach((waypoint, index) => {
-        const waypointElement = document.createElement("li");
-        waypointElement.textContent = `Waypoint ${
-            index + 1
-        }: PlaceId: ${waypoint.placeId}`;
-        waypointsList.appendChild(waypointElement);
-    });
-}
-
 function getRandomColor() {
     const letters = "0123456789ABCDEF";
     let color = "#";
@@ -577,23 +507,10 @@ function getRandomColor() {
     return color;
 }
 
-async function calculateAndDisplayRoute() {
-    document.getElementById("routeOptionsModal").style.display = "block";
-}
+document.getElementById("calculateRouteButton").addEventListener("click", () => {
+    generateRoute("Rota", dadosCd, waypoints);
+});
 
-function closeRouteOptionsModal() {
-    document.getElementById("routeOptionsModal").style.display = "none";
-}
-
-function getSelectedRouteOption() {
-    const options = document.getElementsByName("routeOption");
-    for (const option of options) {
-        if (option.checked) {
-            return option.value;
-        }
-    }
-    return "time";
-}
 
 function generateRoute(option, dadosCentro, caminhos) {
     if (!dadosCentro) {
@@ -606,8 +523,6 @@ function generateRoute(option, dadosCentro, caminhos) {
     }
 
     let waypointsId
-
-    console.log(waypoints)
 
     waypointsId = waypoints.map(marker => marker.customData);
 
@@ -633,39 +548,10 @@ function generateRoute(option, dadosCentro, caminhos) {
                 language: "pt-BR",
             };
 
-            directionsService.route(request, (response, status) => {
+            directionsService.route(request, async (response, status) => {
                 if (status === "OK") {
-                    updateRoutePanel(response.routes[0], waypoints);
-                    directionsRenderer.setOptions({
-                        polylineOptions: {
-                            strokeColor: routeColor,
-                            strokeWeight: 6,
-                        },
-                    });
-                    directionsRenderer.setDirections(response);
 
-                    const route = response.routes[0];
-                    const legs = route.legs;
-                    updateTimeline(legs, routeColor);
-
-                    for (let i = 0; i < markers.length; i++) {
-                        markers[i].setLabel({
-                            text: `${i + 1}`,
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                        });
-                        markers[i].setIcon({
-                            path: google.maps.SymbolPath.CIRCLE,
-                            scale: 12,
-                            fillColor: routeColor,
-                            fillOpacity: 1,
-                            strokeWeight: 2,
-                            strokeColor: routeColor,
-                        });
-                    }
-
-                    fetch("/Roteirizador/AdicionarRota", {
+                    await fetch("/Roteirizador/AdicionarRota", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -682,19 +568,21 @@ function generateRoute(option, dadosCentro, caminhos) {
                             const codigoRota = data.codigo;
 
                             if (waypointsId.length > 0) {
-                                // Montar a estrutura da requisição conforme o modelo RoteirizarWaypointsRequest
                                 const requestPayload = {
                                     CodigoRota: codigoRota,
                                     CodigoWaypoint: waypointsId
                                 }
 
-                                fetch("/Roteirizador/RoteirizarWaypoint", {
+                                await fetch("/Roteirizador/RoteirizarWaypoint", {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
                                     },
                                     body: JSON.stringify(requestPayload),
                                 });
+
+                                window.location.reload()
+
                             }
                         })
                         .catch((error) => {
@@ -710,67 +598,11 @@ function generateRoute(option, dadosCentro, caminhos) {
     });
 }
 
-function getCentros() {
-    return fetch("/Roteirizador/BuscarCentrosDistribuicao")
-        .then(response => response.json())
-        .then(data => {
-            return data;
-        })
-        .catch((error) => {
-            console.error('Error:', error);
-        });
-}
-
-function updateTimeline(legs, color) {
-    const timeline = document.getElementById("timeline");
-    timeline.innerHTML = "";
-
-    legs.forEach((leg, index) => {
-        const div = document.createElement("div");
-        div.style.backgroundColor = color;
-        div.title = `Ponto ${index + 1}`;
-
-        timeline.appendChild(div);
-    });
-}
-
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("addItemBtn").addEventListener("click", addItem);
     document
         .getElementById("closeModalBtn")
         .addEventListener("click", closeModal);
-
-    document
-        .getElementById("calculateRouteButton")
-        .addEventListener("click", calculateAndDisplayRoute);
-
-    document
-        .getElementById("calculateRouteOptionsBtn")
-        .addEventListener("click", () => {
-            const option = getSelectedRouteOption();
-            const centros = getCentros();
-            const caminhos = buscarCaminhos();
-            closeRouteOptionsModal();
-            generateRoute(option, centros, caminhos);
-        });
-
-    document
-        .getElementById("closeRouteOptionsModalBtn")
-        .addEventListener("click", closeRouteOptionsModal);
-
-    document
-        .getElementById("toggleTimelineButton")
-        .addEventListener("click", () => {
-            const timelinePanel = document.getElementById("timelinePanel");
-            const toggleButton = document.getElementById("toggleTimelineButton");
-            if (timelinePanel.style.display === "block") {
-                timelinePanel.style.display = "none";
-                toggleButton.innerHTML = "&#9660;";
-            } else {
-                timelinePanel.style.display = "block";
-                toggleButton.innerHTML = "&#9650;";
-            }
-        });
 
     document.getElementById("addWaypointOption").addEventListener("click", () => {
         closeContextMenu();

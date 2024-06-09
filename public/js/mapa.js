@@ -19,25 +19,25 @@ function initMap() {
     var searchBox = new google.maps.places.SearchBox(input);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
-    map.addListener('bounds_changed', function() {
+    map.addListener('bounds_changed', function () {
         searchBox.setBounds(map.getBounds());
     });
 
     var markers = [];
-    searchBox.addListener('places_changed', function() {
+    searchBox.addListener('places_changed', function () {
         var places = searchBox.getPlaces();
 
         if (places.length == 0) {
             return;
         }
 
-        markers.forEach(function(marker) {
+        markers.forEach(function (marker) {
             marker.setMap(null);
         });
         markers = [];
 
         var bounds = new google.maps.LatLngBounds();
-        places.forEach(function(place) {
+        places.forEach(function (place) {
             if (!place.geometry) {
                 console.log("Local sem coordenadas.")
                 return;
@@ -165,17 +165,16 @@ function initMap() {
             console.error('Error:', error);
         });
 
+    const coresRotas = ['#FF0000', '#00FF00', '#0000FF'];
+
     fetch("/Roteirizador/BuscarRotas")
         .then(response => response.json())
-        .then(data => {
-            for (let rota of data) {
-                fetchWaypointsForRoute(rota.codigo)
-                    .then(waypoints => {
-                        renderRoute(rota, waypoints);
-                    })
-                    .catch((error) => {
-                        console.error('Error fetching waypoints for route:', rota.codigo, error);
-                    });
+        .then(async data => {
+            for (let i = 0; i < data.length; i++) {
+                const rota = data[i];
+                const waypoints = await fetchWaypointsForRoute(rota.codigo);
+                const cor = coresRotas[i % coresRotas.length]; // Aqui você pode definir cores diferentes para cada rota
+                renderRoute(rota, waypoints, cor);
             }
         })
         .catch((error) => {
@@ -217,7 +216,13 @@ function fetchWaypointsForRoute(codigoRota) {
         });
 }
 
-function renderRoute(rota, waypoints) {
+function renderRoute(rota, waypoints, cor) {
+
+    const directionsRenderer = new google.maps.DirectionsRenderer({
+        suppressMarkers: true,
+        map: map
+    });
+
     let origin = {'placeId': rota.placeIdOrigem};
     let destination = {'placeId': rota.placeIdDestino};
 
@@ -243,7 +248,7 @@ function renderRoute(rota, waypoints) {
         if (status === 'OK') {
             directionsRenderer.setOptions({
                 polylineOptions: {
-                    strokeColor: routeColor,
+                    strokeColor: cor,
                     strokeWeight: 6,
                 },
             });
@@ -269,10 +274,10 @@ function renderRoute(rota, waypoints) {
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: 12,
-                        fillColor: routeColor,
+                        fillColor: cor,
                         fillOpacity: 1,
                         strokeWeight: 2,
-                        strokeColor: routeColor,
+                        strokeColor: cor,
                     },
                     customData: waypoint.codigo
                 });
@@ -463,17 +468,6 @@ function addWaypoint(name, number) {
                     markers.push(marker);
                     waypoints.push({location: location, stopover: true});
 
-                    const waypointIndex = waypoints.length - 1;
-                    const waypointElement = document.createElement("li");
-                    waypointElement.textContent = name;
-                    const removeButton = document.createElement("button");
-                    removeButton.textContent = "Remover";
-                    removeButton.addEventListener("click", () => {
-                        removeWaypoint(waypointIndex);
-                    });
-                    waypointElement.appendChild(removeButton);
-                    document.getElementById("waypointsList").appendChild(waypointElement);
-
                 })
                 .catch((error) => {
                     console.error('Error:', error);
@@ -498,7 +492,7 @@ document.getElementById("calculateRouteButton").addEventListener("click", () => 
 });
 
 
-function generateRoute(option, dadosCentro, caminhos) {
+async function generateRoute(option, dadosCentro, caminhos) {
     if (!dadosCentro) {
         alert("Por favor, defina um centro de distribuição.");
         return;
@@ -508,79 +502,115 @@ function generateRoute(option, dadosCentro, caminhos) {
         return;
     }
 
-    let waypointsId
+    const maxWaypointsPerRequest = 25;
+    const numWaypoints = caminhos.length;
+    const numRequests = Math.ceil(numWaypoints / maxWaypointsPerRequest);
 
-    waypointsId = waypoints.map(marker => marker.customData);
+    let allRoutes = [];
 
-    const geocoder = new google.maps.Geocoder();
+    for (let i = 0; i < numRequests; i++) {
+        const startIdx = i * maxWaypointsPerRequest;
+        const endIdx = Math.min((i + 1) * maxWaypointsPerRequest, numWaypoints);
+        const waypointsSubset = caminhos.slice(startIdx, endIdx);
 
-    geocoder.geocode({placeId: dadosCd[0].placeIdCentro}, (results, status) => {
-        if (status === "OK" && results[0]) {
-            const location = results[0].geometry.location;
+        const waypointsId = waypointsSubset.map(marker => marker.customData);
 
-            let request = {
-                origin: location,
-                destination: location,
-                waypoints: waypoints.map(marker => ({
-                    location: marker.location,
-                    stopover: true
-                })),
-                optimizeWaypoints: true,
-                travelMode: "DRIVING",
-                drivingOptions: {
-                    departureTime: new Date(),
-                    trafficModel: "bestguess",
-                },
-                language: "pt-BR",
-            };
+        const geocoder = new google.maps.Geocoder();
 
-            directionsService.route(request, async (response, status) => {
-                if (status === "OK") {
+        const routeResponse = await fetch("/Roteirizador/AdicionarRota", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                PlaceIdOrigem: dadosCentro[0].placeIdCentro,
+                PlaceIdDestino: dadosCentro[0].placeIdCentro,
+                TipoRota: option,
+                DataRota: new Date().toISOString().split('T')[0]
+            }),
+        });
 
-                    await fetch("/Roteirizador/AdicionarRota", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            PlaceIdOrigem: dadosCd[0].placeIdCentro,
-                            PlaceIdDestino: dadosCd[0].placeIdCentro,
-                            TipoRota: option,
-                            DataRota: '2024-05-30'
-                        }),
-                    })
-                        .then(response => response.json())
-                        .then(async data => {
-                            const codigoRota = data.codigo;
+        const routeData = await routeResponse.json();
+        const codigoRota = routeData.codigo;
 
-                            if (waypointsId.length > 0) {
-                                const requestPayload = {
-                                    CodigoRota: codigoRota,
-                                    CodigoWaypoint: waypointsId
-                                }
+        const requestPayload = {
+            CodigoRota: codigoRota,
+            CodigoWaypoint: waypointsId
+        };
 
-                                await fetch("/Roteirizador/RoteirizarWaypoint", {
-                                    method: 'POST',
-                                    headers: {
-                                        'Content-Type': 'application/json',
-                                    },
-                                    body: JSON.stringify(requestPayload),
-                                });
+        await fetch("/Roteirizador/RoteirizarWaypoint", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestPayload),
+        });
 
-                                window.location.reload()
+        let request = {
+            origin: waypointsSubset[0].location,
+            destination: waypointsSubset[waypointsSubset.length - 1].location,
+            waypoints: waypointsSubset.slice(1, -1).map(marker => ({
+                location: marker.location,
+                stopover: true
+            })),
+            optimizeWaypoints: true,
+            travelMode: "DRIVING",
+            drivingOptions: {
+                departureTime: new Date(),
+                trafficModel: "bestguess",
+            },
+            language: "pt-BR",
+        };
 
-                            }
-                        })
-                        .catch((error) => {
-                            console.error('Error:', error);
-                        });
-                } else {
-                    window.alert("Directions request failed due to " + status);
+        directionsService.route(request, (response, status) => {
+            if (status === "OK") {
+                allRoutes.push(response);
+
+                if (allRoutes.length === numRequests) {
+                    const finalRoute = combineAndOptimizeRoutes(allRoutes);
+                    directionsRenderer.setDirections(finalRoute);
                 }
+            } else {
+                window.alert("Directions request failed due to " + status);
+            }
+        });
+    }
+}
+
+function combineAndOptimizeRoutes(routes) {
+    let waypoints = [];
+
+    routes.forEach(route => {
+        route.routes[0].legs.forEach(leg => {
+            waypoints.push({
+                location: leg.end_location,
+                stopover: true
             });
-        } else {
-            console.error("Erro ao obter coordenadas do Place ID:", status);
-        }
+        });
+    });
+
+    let request = {
+        origin: routes[0].routes[0].legs[0].start_location,
+        destination: routes[routes.length - 1].routes[0].legs[routes[routes.length - 1].routes[0].legs.length - 1].end_location,
+        waypoints: waypoints,
+        optimizeWaypoints: true,
+        travelMode: "DRIVING",
+        drivingOptions: {
+            departureTime: new Date(),
+            trafficModel: "bestguess",
+        },
+        language: "pt-BR",
+    };
+
+    return new Promise((resolve, reject) => {
+        directionsService.route(request, (response, status) => {
+            if (status === "OK") {
+                resolve(response);
+                window.location.reload();
+            } else {
+                reject("Error optimizing route: " + status);
+            }
+        });
     });
 }
 

@@ -7,7 +7,6 @@ let directionsRenderer;
 let distributionCenter = null;
 let isAddingDistributionCenter = false;
 let dadosCd;
-const routeColor = getRandomColor();
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -15,19 +14,19 @@ function initMap() {
         zoom: 12,
     });
 
-    var input = document.getElementById('pac-input');
-    var searchBox = new google.maps.places.SearchBox(input);
+    let input = document.getElementById('pac-input');
+    let searchBox = new google.maps.places.SearchBox(input);
     map.controls[google.maps.ControlPosition.TOP_LEFT].push(input);
 
     map.addListener('bounds_changed', function () {
         searchBox.setBounds(map.getBounds());
     });
 
-    var markers = [];
+    let markers = [];
     searchBox.addListener('places_changed', function () {
-        var places = searchBox.getPlaces();
+        let places = searchBox.getPlaces();
 
-        if (places.length == 0) {
+        if (places.length === 0) {
             return;
         }
 
@@ -36,13 +35,13 @@ function initMap() {
         });
         markers = [];
 
-        var bounds = new google.maps.LatLngBounds();
+        let bounds = new google.maps.LatLngBounds();
         places.forEach(function (place) {
             if (!place.geometry) {
                 console.log("Local sem coordenadas.")
                 return;
             }
-            var marker = new google.maps.Marker({
+            let marker = new google.maps.Marker({
                 map: map,
                 title: place.name,
                 position: place.geometry.location
@@ -165,7 +164,7 @@ function initMap() {
             console.error('Error:', error);
         });
 
-    const coresRotas = ['#FF0000', '#00FF00', '#0000FF'];
+    const coresRotas = ['#FF0000', '#00FF00', '#0000FF', '#ffd150', '#b68ff3', '#50d9ff'];
 
     fetch("/Roteirizador/BuscarRotas")
         .then(response => response.json())
@@ -406,13 +405,6 @@ function addDistributionCenter(name, number) {
     });
 }
 
-function removeWaypoint(index) {
-    waypoints.splice(index, 1);
-    markers[index].setMap(null);
-    markers.splice(index, 1);
-    document.getElementById("waypointsList").children[index].remove();
-}
-
 function addWaypoint(name, number) {
     const geocoder = new google.maps.Geocoder();
 
@@ -478,15 +470,6 @@ function addWaypoint(name, number) {
     });
 }
 
-function getRandomColor() {
-    const letters = "0123456789ABCDEF";
-    let color = "#";
-    for (let i = 0; i < 6; i++) {
-        color += letters[Math.floor(Math.random() * 16)];
-    }
-    return color;
-}
-
 document.getElementById("calculateRouteButton").addEventListener("click", () => {
     generateRoute("Rota", dadosCd, waypoints);
 });
@@ -514,8 +497,6 @@ async function generateRoute(option, dadosCentro, caminhos) {
         const waypointsSubset = caminhos.slice(startIdx, endIdx);
 
         const waypointsId = waypointsSubset.map(marker => marker.customData);
-
-        const geocoder = new google.maps.Geocoder();
 
         const routeResponse = await fetch("/Roteirizador/AdicionarRota", {
             method: 'POST',
@@ -569,6 +550,7 @@ async function generateRoute(option, dadosCentro, caminhos) {
                 if (allRoutes.length === numRequests) {
                     const finalRoute = combineAndOptimizeRoutes(allRoutes);
                     directionsRenderer.setDirections(finalRoute);
+                    window.location.reload();
                 }
             } else {
                 window.alert("Directions request failed due to " + status);
@@ -606,7 +588,6 @@ function combineAndOptimizeRoutes(routes) {
         directionsService.route(request, (response, status) => {
             if (status === "OK") {
                 resolve(response);
-                window.location.reload();
             } else {
                 reject("Error optimizing route: " + status);
             }

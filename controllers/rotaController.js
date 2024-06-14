@@ -4,7 +4,7 @@ exports.postRota = async (req, res) => {
     try {
         const dadosRota = req.body;
         const retornoRota = await axios.post(
-            "http://localhost:5219/Roteirizador/AdicionarRota",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/AdicionarRota",
             dadosRota
         );
         res.send(retornoRota.data);
@@ -18,7 +18,7 @@ exports.getRota = async (req, res) => {
     try {
         const dadosRota = req.body;
         const retornoRota = await axios.get(
-            "http://localhost:5219/Roteirizador/BuscarRotas",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/BuscarRotas",
             dadosRota
         );
         res.send(retornoRota.data);

@@ -4,7 +4,7 @@ exports.login = async (req, res) => {
   try {
     const dadosLogin = req.body;
     const retornoLogin = await axios.post(
-      "http://localhost:5219/Usuarios/Login",
+      "https://glad-reliably-lion.ngrok-free.app/Usuarios/Login",
       dadosLogin
     );
     res.send(retornoLogin.data);

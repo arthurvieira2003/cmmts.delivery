@@ -46,8 +46,47 @@ body {
 #calculateRouteButton {
   position: absolute;
   bottom: 10px;
-  left: 10px;
+  left: 200px;
   background-color: green;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#deleteModeButton {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#confirmDeleteButton {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#deleteRouteButton {
+  position: absolute;
+  bottom: 10px;
+  left: 1160px;
+  background-color: red;
   color: white;
   padding: 10px 20px;
   border: none;

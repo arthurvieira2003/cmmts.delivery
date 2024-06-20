@@ -23,6 +23,6 @@ router.get("/Roteirizador/BuscarCentrosDistribuicao", cdController.getCd);
 router.get("/Roteirizador/BuscarWayPoints", waypointController.getWaypoint);
 router.get("/Roteirizador/BuscarRotas", rotaController.getRota);
 
-router.delete("/Roteirizador/DeletarRota", deleteRouteController.deleteRoute);
+router.post("/Roteirizador/DeletarRota", deleteRouteController.deleteRoute);
 
 module.exports = router;

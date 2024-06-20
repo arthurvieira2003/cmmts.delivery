@@ -193,3 +193,30 @@ body {
 .pac-item:hover {
   background-color: #f5f5f5;
 }
+
+#deleteRouteModal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#deleteRouteModal ul {
+  list-style: none;
+  padding: 0;
+}
+
+#deleteRouteModal li {
+  cursor: pointer;
+  padding: 5px;
+}
+
+#deleteRouteModal button {
+  margin-top: 10px;
+}
+

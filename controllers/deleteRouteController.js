@@ -3,7 +3,7 @@ const axios = require("axios");
 exports.deleteRoute = async (req, res) => {
     try {
         const cdRota = req.body;
-        const retornoDeleteRota = await axios.delete(
+        const retornoDeleteRota = await axios.post(
             "https://glad-reliably-lion.ngrok-free.app/Roteirizador/DeletarRota",
             cdRota
         );

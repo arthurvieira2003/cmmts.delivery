@@ -11,6 +11,7 @@ let dadosCd;
 let deleteMode = false;
 let waypointsToDelete = [];
 let selectedRoute = null;
+let renderedRoutes = [];
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -339,6 +340,7 @@ function renderRoute(rota, waypoints, cor, cdRota) {
 
                 markers.push(marker);
             }
+            renderedRoutes.push({ directionsRenderer, color: cor, rota });
         }
     });
 
@@ -708,33 +710,59 @@ document.getElementById("confirmDeleteButton").addEventListener("click", async (
     document.getElementById("confirmDeleteButton").style.display = "none";
 });
 
-document.getElementById("deleteRouteButton").addEventListener("click", async () => {
-    if (!selectedRoute) {
-        alert("Por favor, selecione uma rota para deletar.");
-        return;
-    }
+document.getElementById('deleteRouteButton').addEventListener('click', function() {
+    const routeList = document.getElementById('routeList');
+    routeList.innerHTML = '';
 
-    try {
-        const response = await fetch('/Roteirizador/DeletarRota', {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                codigo: selectedRoute
-            }),
+    renderedRoutes.forEach((route, index) => {
+        const li = document.createElement('li');
+        li.style.color = route.color;
+        li.textContent = `Rota ${index + 1}`;
+        li.dataset.routeIndex = index;
+        li.addEventListener('click', function() {
+            document.querySelectorAll('#routeList li').forEach(item => item.style.fontWeight = 'normal');
+            this.style.fontWeight = 'bold';
+            selectedRoute = route;  // Armazena a rota selecionada
         });
+        routeList.appendChild(li);
+    });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+    document.getElementById('deleteRouteModal').style.display = 'block';
+});
 
-        // Limpe a variável selectedRoute
-        selectedRoute = null;
-        // Recarregue a página para atualizar as rotas
-        window.location.reload();
-    } catch (error) {
-        console.error('Error:', error);
+document.getElementById('cancelDeleteRouteButton').addEventListener('click', function() {
+    document.getElementById('deleteRouteModal').style.display = 'none';
+});
+
+document.getElementById('confirmDeleteRouteButton').addEventListener('click', async function () {
+    if (selectedRoute) {
+        // Remove a rota do mapa
+        selectedRoute.directionsRenderer.setMap(null);
+        renderedRoutes = renderedRoutes.filter(route => route !== selectedRoute);
+
+        // Fazer a requisição para deletar a rota no banco de dados
+        const response = await fetch('/Roteirizador/DeletarRota', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({codigo: selectedRoute.directionsRenderer.customData})
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao deletar a rota do banco de dados.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao deletar a rota. Por favor, tente novamente.');
+            });
+    } else {
+        alert('Por favor, selecione uma rota para excluir.');
     }
 });
 

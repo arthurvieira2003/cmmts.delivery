@@ -1,37 +1,49 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Roteirizador</title>
-    <link rel="stylesheet" href="../css/mapa.css"/>
+    <link rel="stylesheet" href="../css/mapa.css" />
     <!-- Loading Google Maps API -->
     <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7IIMPK5Cz8kxb5ib9T4_8qCJTv_Tp9NY&libraries=places,geometry"></script>
-</head>
-<body>
-<div id="map"></div>
-<div id="modal">
-    <label for="itemName">Nome:</label>
-    <input type="text" id="itemName"/>
-    <label for="itemNumber">Número:</label>
-    <input type="number" id="itemNumber"/>
-    <button id="addItemBtn">Adicionar</button>
-    <button id="closeModalBtn">Cancelar</button>
-</div>
-<button id="calculateRouteButton">Calcular Rota</button>
-<!-- Adicione os botões no seu HTML -->
-<button id="deleteModeButton">Excluir Waypoints</button>
-<button id="confirmDeleteButton" style="display: none;">Confirmar Exclusão</button>
-<button id="deleteRouteButton">Deletar Rota</button>
-<div id="contextMenu" style="display: none">
-    <button id="addWaypointOption">Adicionar Waypoint</button>
-    <button id="addDistributionCenterOption">Adicionar Centro de Distribuição</button>
-</div>
-<div id="deleteRouteModal" style="display: none;">
-    <h3>Selecione a Rota para Excluir</h3>
-    <ul id="routeList"></ul>
-    <button id="confirmDeleteRouteButton">Confirmar Exclusão</button>
-    <button id="cancelDeleteRouteButton">Cancelar</button>
-</div>
-<input id="pac-input" class="controls" type="text" placeholder="Pesquisar endereço">
-<script src="../js/mapa.js"></script>
-</body>
+  </head>
+  <body>
+    <div id="map"></div>
+    <div id="modal">
+      <label for="itemName">Nome:</label>
+      <input type="text" id="itemName" />
+      <label for="itemNumber">Número:</label>
+      <input type="number" id="itemNumber" />
+      <button id="addItemBtn">Adicionar</button>
+      <button id="closeModalBtn">Cancelar</button>
+    </div>
+    <a href="../html/dashboard.html">
+      <button id="homePage">Home</button>
+    </a>
+    <button id="calculateRouteButton">Calcular Rota</button>
+    <!-- Adicione os botões no seu HTML -->
+    <button id="deleteModeButton">Excluir Waypoints</button>
+    <button id="confirmDeleteButton" style="display: none">
+      Confirmar Exclusão
+    </button>
+    <button id="deleteRouteButton">Deletar Rota</button>
+    <div id="contextMenu" style="display: none">
+      <button id="addWaypointOption">Adicionar Waypoint</button>
+      <button id="addDistributionCenterOption">
+        Adicionar Centro de Distribuição
+      </button>
+    </div>
+    <div id="deleteRouteModal" style="display: none">
+      <h3>Selecione a Rota para Excluir</h3>
+      <ul id="routeList"></ul>
+      <button id="confirmDeleteRouteButton">Confirmar Exclusão</button>
+      <button id="cancelDeleteRouteButton">Cancelar</button>
+    </div>
+    <input
+      id="pac-input"
+      class="controls"
+      type="text"
+      placeholder="Pesquisar endereço"
+    />
+    <script src="../js/mapa.js"></script>
+  </body>
 </html>

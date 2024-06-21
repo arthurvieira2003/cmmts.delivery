@@ -56,6 +56,19 @@ body {
   font-size: 16px;
 }
 
+#homePage {
+  position: absolute;
+  bottom: 50px;
+  left: 10px;
+  background-color: blue;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
 #deleteModeButton {
   position: absolute;
   bottom: 10px;
@@ -219,4 +232,3 @@ body {
 #deleteRouteModal button {
   margin-top: 10px;
 }
-

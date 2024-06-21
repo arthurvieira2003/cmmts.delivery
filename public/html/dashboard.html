@@ -1,66 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CMMTS Delivery Dashboard</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
-</head>
-<body>
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <script
+      type="text/javascript"
+      src="https://www.gstatic.com/charts/loader.js"
+    ></script>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>CMMTS Delivery</h1>
-        </header>
-        <div class="summary">
-            <div class="card">
-                <h2>250</h2>
-                <p>ENTREGAS HOJE</p>
-            </div>
-            <div class="card">
-                <h2 class="green">95</h2>
-                <p>ENTREGUES</p>
-            </div>
-            <div class="card">
-                <h2 class="red">3</h2>
-                <p>NÃO ENTREGUES</p>
-            </div>
-            <div class="card">
-                <h2 class="blue">152</h2>
-                <p>EM ABERTO</p>
-            </div>
+      <header>
+        <h1>CMMTS Delivery</h1>
+      </header>
+      <div class="summary">
+        <div class="card">
+          <h2></h2>
+          <p>ENTREGAS HOJE</p>
         </div>
-        <div class="controls">
-            <div class="control">
-                <a href="../html/mapa.html">
-                    <img src="../assets/dashboards/592245.png" alt="Roteirizador">
-                </a>
-                <p>Roteirizador</p>
-            </div>
-            <div class="control">
-                <a href="../html/mapa.html">
-                    <img src="../assets/dashboards/286112.png" alt="Acompanhamento">
-                </a>
-                <p>Acompanhamento</p>
-            </div>
-            <div class="control">
-                <a href="../html/mapa.html">
-                  <img src="../assets/dashboards/config.png" alt="Configurações">
-                </a>
-                <p>Configurações</p>
-            </div>
+        <div class="card">
+          <h2 class="green"></h2>
+          <p>ENTREGUES</p>
         </div>
-         <div class="charts">
-            
-            <div class="chart">
-                <h3 id="teste">dadosDashboard</h3>
-                <img src="path/to/bar-chart.png" alt="Gráfico de barras">
-            </div>
-            <div class="chart">
-                <h3>Status Por Entrega</h3>
-                <img src="path/to/pie-chart.png" alt="Gráfico de pizza">
-            </div>
-        </div> 
+        <div class="card">
+          <h2 class="red"></h2>
+          <p>NÃO ENTREGUES</p>
+        </div>
+        <div class="card">
+          <h2 class="blue"></h2>
+          <p>EM ABERTO</p>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="control">
+          <a href="../html/mapa.html">
+            <img src="../assets/dashboards/592245.png" alt="Roteirizador" />
+          </a>
+          <p>Roteirizador</p>
+        </div>
+        <div class="control">
+          <a href="../html/acompanhamento.html">
+            <img src="../assets/dashboards/286112.png" alt="Acompanhamento" />
+          </a>
+          <p>Acompanhamento</p>
+        </div>
+        <div class="control">
+          <a href="../html/usuarios.html">
+            <img src="../assets/dashboards/33308.png" alt="Usuários" />
+          </a>
+          <p>Usuários</p>
+        </div>
+      </div>
+      <div class="charts">
+        <div class="chart">
+          <h3 id="teste">Dashboard</h3>
+          <div id="bar_chart_div"></div>
+        </div>
+        <div class="chart">
+          <h3>Status Por Entrega</h3>
+          <div id="pie_chart_div"></div>
+        </div>
+      </div>
     </div>
     <script src="../js/dashboard.js"></script>
-</body>
+  </body>
 </html>

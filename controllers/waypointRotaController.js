@@ -4,7 +4,7 @@ exports.postWaypointRota = async (req, res) => {
     try {
         const dadosWaypointRota = req.body;
         const retornoWaypointRota = await axios.post(
-            "http://localhost:5219/Roteirizador/RoteirizarWaypoint",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/RoteirizarWaypoint",
             dadosWaypointRota
         );
         res.send(retornoWaypointRota.data);

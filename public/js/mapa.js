@@ -1,5 +1,6 @@
 let map;
 let waypoints = [];
+let selectedWaypoints = [];
 let markers = [];
 let placeId;
 let directionsService = new google.maps.DirectionsService();
@@ -7,6 +8,10 @@ let directionsRenderer;
 let distributionCenter = null;
 let isAddingDistributionCenter = false;
 let dadosCd;
+let deleteMode = false;
+let waypointsToDelete = [];
+let selectedRoute = null;
+let renderedRoutes = [];
 
 function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
@@ -85,7 +90,7 @@ function initMap() {
                             icon: {
                                 path: google.maps.SymbolPath.CIRCLE,
                                 scale: 12,
-                                fillColor: "blue",
+                                fillColor: "red",
                                 fillOpacity: 1,
                                 strokeWeight: 2,
                                 strokeColor: "blue",
@@ -113,7 +118,6 @@ function initMap() {
     fetch("/Roteirizador/BuscarWayPoints")
         .then(response => response.json())
         .then(data => {
-            console.log(data)
             for (let waypoint of data) {
                 if (!waypoint.codigoRota) {
                     const geocoder = new google.maps.Geocoder();
@@ -130,13 +134,11 @@ function initMap() {
                             const marker = new google.maps.Marker({
                                 position: location,
                                 map: map,
-                                label: {
-                                    text: "E",
-                                    color: "white",
-                                    fontSize: "16px",
-                                    fontWeight: "bold",
-                                },
-                                customData: waypoint.codigo
+                                customData: waypoint.codigo,
+                                icon: {
+                                    url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // Marcador azul
+                                    scaledSize: new google.maps.Size(35, 35) // Tamanho do marcador
+                                }
                             });
 
                             marker.addListener("mouseover", () => {
@@ -145,6 +147,47 @@ function initMap() {
 
                             marker.addListener("mouseout", () => {
                                 infowindow.close();
+                            });
+
+                            // Adicione um evento de clique ao marcador
+                            marker.addListener("click", () => {
+                                // Código para o modo de exclusão
+                                if (deleteMode) {
+                                    const index = waypointsToDelete.findIndex(waypoint => waypoint.customData === marker.customData);
+                                    if (index !== -1) {
+                                        // Se o waypoint já estiver selecionado para exclusão, remova-o da lista e mude sua cor de volta para azul
+                                        waypointsToDelete.splice(index, 1);
+                                        marker.setIcon({
+                                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // Marcador azul
+                                            scaledSize: new google.maps.Size(35, 35) // Altere o tamanho aqui
+                                        });
+                                    } else {
+                                        // Se o waypoint não estiver selecionado para exclusão, adicione-o à lista e mude sua cor para vermelho
+                                        waypointsToDelete.push(marker);
+                                        marker.setIcon({
+                                            url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png', // Marcador vermelho
+                                            scaledSize: new google.maps.Size(35, 35) // Altere o tamanho aqui
+                                        });
+                                    }
+                                } else {
+                                    // O código existente para selecionar waypoints para a rota vai aqui
+                                    const index = selectedWaypoints.findIndex(waypoint => waypoint.customData === marker.customData);
+                                    if (index !== -1) {
+                                        // Se o waypoint já estiver selecionado, remova-o da lista
+                                        selectedWaypoints.splice(index, 1);
+                                        marker.setIcon({
+                                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // Marcador azul
+                                            scaledSize: new google.maps.Size(35, 35) // Altere o tamanho aqui
+                                        });
+                                    } else {
+                                        // Se o waypoint não estiver selecionado, adicione-o à lista
+                                        selectedWaypoints.push(marker);
+                                        marker.setIcon({
+                                            url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', // Marcador verde
+                                            scaledSize: new google.maps.Size(35, 35) // Altere o tamanho aqui
+                                        });
+                                    }
+                                }
                             });
 
                             markers.push(marker);
@@ -171,9 +214,10 @@ function initMap() {
         .then(async data => {
             for (let i = 0; i < data.length; i++) {
                 const rota = data[i];
+                const cdRota = rota.codigo
                 const waypoints = await fetchWaypointsForRoute(rota.codigo);
                 const cor = coresRotas[i % coresRotas.length]; // Aqui você pode definir cores diferentes para cada rota
-                renderRoute(rota, waypoints, cor);
+                renderRoute(rota, waypoints, cor, cdRota);
             }
         })
         .catch((error) => {
@@ -215,11 +259,12 @@ function fetchWaypointsForRoute(codigoRota) {
         });
 }
 
-function renderRoute(rota, waypoints, cor) {
+function renderRoute(rota, waypoints, cor, cdRota) {
 
     const directionsRenderer = new google.maps.DirectionsRenderer({
         suppressMarkers: true,
-        map: map
+        map: map,
+        customData: cdRota
     });
 
     let origin = {'placeId': rota.placeIdOrigem};
@@ -295,7 +340,13 @@ function renderRoute(rota, waypoints, cor) {
 
                 markers.push(marker);
             }
+            renderedRoutes.push({ directionsRenderer, color: cor, rota });
         }
+    });
+
+    google.maps.event.addListener(directionsRenderer, 'click', function() {
+        // Armazene o identificador da rota em uma variável
+        selectedRoute = directionsRenderer.customData;
     });
 }
 
@@ -434,13 +485,11 @@ function addWaypoint(name, number) {
                     const marker = new google.maps.Marker({
                         position: location,
                         map: map,
-                        label: {
-                            text: "E",
-                            color: "white",
-                            fontSize: "16px",
-                            fontWeight: "bold",
-                        },
-                        customData: data.codigo
+                        customData: data.codigo,
+                        icon: {
+                            url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // Marcador azul
+                            scaledSize: new google.maps.Size(35, 35) // Tamanho do marcador
+                        }
                     });
 
                     waypoints.push({
@@ -455,6 +504,26 @@ function addWaypoint(name, number) {
 
                     marker.addListener("mouseout", () => {
                         infowindow.close();
+                    });
+
+                    // Adicione um evento de clique ao marcador
+                    marker.addListener("click", () => {
+                        const index = selectedWaypoints.findIndex(waypoint => waypoint.customData === marker.customData);
+                        if (index !== -1) {
+                            // Se o waypoint já estiver selecionado, remova-o da lista
+                            selectedWaypoints.splice(index, 1);
+                            marker.setIcon({
+                                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png', // Marcador azul
+                                scaledSize: new google.maps.Size(35, 35) // Altere o tamanho aqui
+                            });
+                        } else {
+                            // Se o waypoint não estiver selecionado, adicione-o à lista
+                            selectedWaypoints.push(marker);
+                            marker.setIcon({
+                                url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png', // Marcador verde
+                                scaledSize: new google.maps.Size(35, 35) // Altere o tamanho aqui
+                            });
+                        }
                     });
 
                     markers.push(marker);
@@ -486,7 +555,7 @@ async function generateRoute(option, dadosCentro, caminhos) {
     }
 
     const maxWaypointsPerRequest = 25;
-    const numWaypoints = caminhos.length;
+    const numWaypoints = selectedWaypoints.length;
     const numRequests = Math.ceil(numWaypoints / maxWaypointsPerRequest);
 
     let allRoutes = [];
@@ -494,7 +563,7 @@ async function generateRoute(option, dadosCentro, caminhos) {
     for (let i = 0; i < numRequests; i++) {
         const startIdx = i * maxWaypointsPerRequest;
         const endIdx = Math.min((i + 1) * maxWaypointsPerRequest, numWaypoints);
-        const waypointsSubset = caminhos.slice(startIdx, endIdx);
+        const waypointsSubset = selectedWaypoints.slice(startIdx, endIdx);
 
         const waypointsId = waypointsSubset.map(marker => marker.customData);
 
@@ -543,6 +612,8 @@ async function generateRoute(option, dadosCentro, caminhos) {
             language: "pt-BR",
         };
 
+        window.location.reload();
+
         directionsService.route(request, (response, status) => {
             if (status === "OK") {
                 allRoutes.push(response);
@@ -550,7 +621,6 @@ async function generateRoute(option, dadosCentro, caminhos) {
                 if (allRoutes.length === numRequests) {
                     const finalRoute = combineAndOptimizeRoutes(allRoutes);
                     directionsRenderer.setDirections(finalRoute);
-                    window.location.reload();
                 }
             } else {
                 window.alert("Directions request failed due to " + status);
@@ -594,6 +664,107 @@ function combineAndOptimizeRoutes(routes) {
         });
     });
 }
+
+document.getElementById("deleteModeButton").addEventListener("click", () => {
+    deleteMode = !deleteMode;
+    document.getElementById("confirmDeleteButton").style.display = deleteMode ? "block" : "none";
+    if (!deleteMode) {
+        waypointsToDelete.forEach(marker => {
+            marker.setIcon({
+                url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png',
+                scaledSize: new google.maps.Size(35, 35)
+            });
+        });
+        waypointsToDelete = [];
+    }
+});
+
+document.getElementById("confirmDeleteButton").addEventListener("click", async () => {
+    for (let marker of waypointsToDelete) {
+        try {
+            const response = await fetch('/Roteirizador/FinalizarEntrega', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    codigo: marker.customData
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            // Remova o marcador do mapa
+            marker.setMap(null);
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    }
+
+    // Limpe a lista de waypoints a serem excluídos
+    waypointsToDelete = [];
+    // Desative o modo de exclusão
+    deleteMode = false;
+    document.getElementById("confirmDeleteButton").style.display = "none";
+});
+
+document.getElementById('deleteRouteButton').addEventListener('click', function() {
+    const routeList = document.getElementById('routeList');
+    routeList.innerHTML = '';
+
+    renderedRoutes.forEach((route, index) => {
+        const li = document.createElement('li');
+        li.style.color = route.color;
+        li.textContent = `Rota ${index + 1}`;
+        li.dataset.routeIndex = index;
+        li.addEventListener('click', function() {
+            document.querySelectorAll('#routeList li').forEach(item => item.style.fontWeight = 'normal');
+            this.style.fontWeight = 'bold';
+            selectedRoute = route;  // Armazena a rota selecionada
+        });
+        routeList.appendChild(li);
+    });
+
+    document.getElementById('deleteRouteModal').style.display = 'block';
+});
+
+document.getElementById('cancelDeleteRouteButton').addEventListener('click', function() {
+    document.getElementById('deleteRouteModal').style.display = 'none';
+});
+
+document.getElementById('confirmDeleteRouteButton').addEventListener('click', async function () {
+    if (selectedRoute) {
+        // Remove a rota do mapa
+        selectedRoute.directionsRenderer.setMap(null);
+        renderedRoutes = renderedRoutes.filter(route => route !== selectedRoute);
+
+        // Fazer a requisição para deletar a rota no banco de dados
+        const response = await fetch('/Roteirizador/DeletarRota', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({codigo: selectedRoute.directionsRenderer.customData})
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao deletar a rota do banco de dados.');
+                }
+                return response.json();
+            })
+            .then(data => {
+                window.location.reload();
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao deletar a rota. Por favor, tente novamente.');
+            });
+    } else {
+        alert('Por favor, selecione uma rota para excluir.');
+    }
+});
 
 document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("addItemBtn").addEventListener("click", addItem);

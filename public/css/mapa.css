@@ -46,8 +46,60 @@ body {
 #calculateRouteButton {
   position: absolute;
   bottom: 10px;
-  left: 10px;
+  left: 200px;
   background-color: green;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#homePage {
+  position: absolute;
+  bottom: 50px;
+  left: 10px;
+  background-color: blue;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#deleteModeButton {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#confirmDeleteButton {
+  position: absolute;
+  bottom: 60px;
+  left: 10px;
+  background-color: red;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#deleteRouteButton {
+  position: absolute;
+  bottom: 10px;
+  left: 1160px;
+  background-color: red;
   color: white;
   padding: 10px 20px;
   border: none;
@@ -153,4 +205,30 @@ body {
 /* Estilo para a lista de sugestões de endereço quando em hover */
 .pac-item:hover {
   background-color: #f5f5f5;
+}
+
+#deleteRouteModal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+#deleteRouteModal ul {
+  list-style: none;
+  padding: 0;
+}
+
+#deleteRouteModal li {
+  cursor: pointer;
+  padding: 5px;
+}
+
+#deleteRouteModal button {
+  margin-top: 10px;
 }

@@ -1,65 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CMMTS Delivery Dashboard</title>
-    <link rel="stylesheet" href="../css/dashboard.css">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./css/index.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
+    <title>CMMTS Delivery</title>
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <h1>CMMTS Delivery</h1>
-        </header>
-        <div class="summary">
-            <div class="card">
-                <h2>250</h2>
-                <p>ENTREGAS HOJE</p>
-            </div>
-            <div class="card">
-                <h2 class="green">95</h2>
-                <p>ENTREGUES</p>
-            </div>
-            <div class="card">
-                <h2 class="red">3</h2>
-                <p>NÃO ENTREGUES</p>
-            </div>
-            <div class="card">
-                <h2 class="blue">152</h2>
-                <p>EM ABERTO</p>
-            </div>
+      <div class="header">
+        <h2>Login</h2>
+      </div>
+      <form id="form" class="form">
+        <div class="form-control">
+          <label for="username">Nome de usuário</label
+          ><input type="text" id="username" placeholder="Digite seu Nome" />
+          <i class="fas fa-exclamation-circle"></i>
+          <i class="fas fa-check-circle"></i><small>Mensagem de erro</small>
         </div>
-        <div class="controls">
-            <div class="control">
-                <a href="../html/mapa.html">
-                    <img src="../assets/dashboards/592245.png" alt="Roteirizador">
-                </a>
-                <p>Roteirizador</p>
-            </div>
-            <div class="control">
-                <a href="../html/mapa.html">
-                    <img src="../assets/dashboards/286112.png" alt="Acompanhamento">
-                </a>
-                <p>Acompanhamento</p>
-            </div>
-            <div class="control">
-                <a href="../html/mapa.html">
-                  <img src="../assets/dashboards/config.png" alt="Configurações">
-                </a>
-                <p>Configurações</p>
-            </div>
+        <div class="form-control">
+          <label for="password">Senha</label
+          ><input
+            type="password"
+            id="password"
+            placeholder="Digite sua Senha"
+          />
+          <i class="fas fa-exclamation-circle"></i>
+          <i class="fas fa-check-circle"></i><small>Mensagem de erro</small>
         </div>
-         <div class="charts">
-            <div class="chart">
-                <h3 id="teste">dadosDashboard</h3>
-                <img src="path/to/bar-chart.png" alt="Gráfico de barras">
-            </div>
-            <div class="chart">
-                <h3>Status Por Entrega</h3>
-                <img src="path/to/pie-chart.png" alt="Gráfico de pizza">
-            </div>
-        </div> 
+        <button type="submit">Enviar</button>
+        <div id="status"></div>
+        <div id="detail"></div>
+        <div id="recordKey"></div>
+      </form>
     </div>
-    <script src="../js/dashboard.js"></script>
-</body>
+    <script
+      src="https://kit.fontawesome.com/3c36f2cce4.js"
+      crossorigin="anonymous"
+    ></script>
+    <script src="./js/index.js"></script>
+  </body>
 </html>

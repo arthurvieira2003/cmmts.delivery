@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", function () {
         console.log(data)
         if (data.successo) {
           console.log("Sucesso:", data);
-          window.location.href = "./html/mapa.html";
+          window.location.href = "./html/dashboard.html";
         } else {
           console.error("Erro de login:", data.message);
           alert("Falha no login: " + data.message);

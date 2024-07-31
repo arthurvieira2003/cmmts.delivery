@@ -4,7 +4,7 @@ exports.postWaypoint = async (req, res) => {
     try {
         const dadosWaypoint = req.body;
         const retornoWaypoint = await axios.post(
-            "http://localhost:5219/Roteirizador/AdicionarWaypoint",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/AdicionarWaypoint",
             dadosWaypoint
         );
         res.send(retornoWaypoint.data);
@@ -18,7 +18,7 @@ exports.getWaypoint = async (req, res) => {
     try {
         const dadosWaypoint = req.body;
         const retornoWaypoint = await axios.get(
-            "http://localhost:5219/Roteirizador/BuscarWayPoints",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/BuscarWayPoints",
             dadosWaypoint
         );
         res.send(retornoWaypoint.data);

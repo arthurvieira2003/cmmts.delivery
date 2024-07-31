@@ -4,7 +4,7 @@ exports.postCd = async (req, res) => {
     try {
         const dadosCd = req.body;
         const retornoPostCd = await axios.post(
-            "http://localhost:5219/Roteirizador/AdicionarCentro",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/AdicionarCentro",
             dadosCd
         );
         res.send(retornoPostCd.data);
@@ -18,7 +18,7 @@ exports.getCd = async (req, res) => {
     try {
         const dadosCd = req.body;
         const retornoPostCd = await axios.get(
-            "http://localhost:5219/Roteirizador/BuscarCentrosDistribuicao",
+            "https://glad-reliably-lion.ngrok-free.app/Roteirizador/BuscarCentrosDistribuicao",
             dadosCd
         );
         res.send(retornoPostCd.data);
